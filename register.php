@@ -1,48 +1,23 @@
 <?php
-ob_clean();
-require_once "connect.php";
+require_once 'connect.php';
+if ($server['REQUEST_METHOD']=="POST"){
+    $username = $_POST['username'];
+    $email = $_POST['email'];
+    $password = md5(string: $_POST['password']);
 
-header('Content-Type: application/json');
+    $check = mysqli_query(mysql: $conn, query: "SELECT * FROM user WHERE email='$email'");
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-
-    $email = $_POST['email'] ?? '';
-    $password = md5($_POST['password'] ?? '');
-
-    if ($email == '' || $password == '') {
-        echo json_encode([
-            "status" => "error",
-            "message" => "Email and password are required"
-        ]);
-        exit;
+    if (mysqli_num_rows(result: $check) > 0){
+        echo "email sudah terdaftar";
+    }else {
+        $sql = "INSERT INTO user(username, email, password) values('$username', '$email', '$password')";
+        if(mysqli_query(mysql: $conn, query: $sql)){
+            echo "user berhasil dibuat";
+        }else {
+            echo "user gagal dibuat";
+        }
     }
-
-    $check = mysqli_query($conn, "SELECT * FROM users WHERE email = '$email'");
-    if (mysqli_num_rows($check) > 0) {
-        echo json_encode([
-            "status" => "error",
-            "message" => "Email already exists"
-        ]);
-        exit;
-    }
-
-    $query = "INSERT INTO users (email, password) VALUES ('$email', '$password')";
-    if (mysqli_query($conn, $query)) {
-        echo json_encode([
-            "status" => "success",
-            "message" => "Registration successful"
-        ]);
-    } else {
-        echo json_encode([
-            "status" => "error",
-            "message" => "Database error"
-        ]);
-    }
-
-} else {
-    echo json_encode([
-        "status" => "error",
-        "message" => "Invalid request"
-    ]);
+}else{
+    echo "Invalid request";
 }
 ?>

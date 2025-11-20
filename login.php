@@ -1,30 +1,31 @@
 <?php
-header(header: 'Content-Type: application/json');
-error_reporting(0);
 include 'connect.php';
+
 $email = $_POST['email'];
-$pasword = password_hash($_POST['password']);
+$password = $_POST['password'];
 
-$sql = "SELECT * FROM user WHERE email='$email'AND password='$pasword'LIMIT 1";
-$result = mysqli_query(mysql: $conn, query: $sql);
+$sql = "SELECT *FROM user WHERE email='$email' AND password='$password' LIMIT 1";
+$result = mysqli_query($conn, $sql);
 
-if (mysqli_num_rows($result) >0 ){
+if (mysqli_num_rows($result) > 0) {
+    $user = mysqli_fetch_assoc($result);
+
     echo json_encode(
-        value: [
+        [
             "status" => "success",
             "message" => "login berhasil",
+            "otp" => $user['otp'],
             "data" => [
-                "data" => $user ['id'],
-                "username" => $user ['username'],
-                "email" => $user ['email'],
+                "iduser" => $user['iduser'],
+                "username" => $user['username'],
+                "email" => $user['email'],
             ]
-        ]    
-            );
-}else {
-    echo json_encode(
-        value: [
-            "status" => "error",
-            "message" => "login gagal, periksa email dan password anda"
         ]
     );
+} else {
+    echo json_encode([
+        "status" => "error",
+        "message" => "email atau password salah"
+    ]);
 }
+?>

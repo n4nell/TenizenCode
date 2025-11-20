@@ -1,4 +1,5 @@
 <?php
+
 include 'connect.php';
 
 if (isset($_GET['nis'])) {
@@ -14,10 +15,10 @@ if (isset($_GET['nis'])) {
 
         $response = array(
             "nis" => $data['nis'],
-            "namasiswa" => $data['namasiswa'],
+            "namasiswa" => $data['nama_siswa'],
             "jk" => $data['jk'],
             "alamat" => $data['alamat'],
-            "tgllahir" => $data['tanggallahir'],
+            "tgllahir" => $data['tanggal_lahir'],
             "foto" => $fotoBase64
         );
         echo json_encode($response);
@@ -26,5 +27,5 @@ if (isset($_GET['nis'])) {
     }
 } else {
     echo json_encode(["error" => "Parameter NIS tidak dikirim"]);
-}
-?>
+} 
+?>  

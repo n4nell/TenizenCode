@@ -1,13 +1,13 @@
 <?php
 if ($_SERVER['REQUEST_METHOD'] == "POST") {
     $nis = $_POST['nis'];
-    $namasiswa = $_POST['namasiswa'];
+    $nama_siswa = $_POST['namasiswa'];
     $jk = $_POST['jk'];
     $alamat = $_POST['alamat'];
-    $tanggallahir = $_POST['tanggallahir'];
-    $foto_base64 = $_POST['foto'];
+    $tanggal_lahir = $_POST['tanggallahir'];
+    $foto = $_POST['foto'];
 
-    $imageData = base64_decode($foto_base64);
+    $imageData = base64_decode($foto);
 
     $namafile = $nis . "_siswa.jpg";
 
@@ -16,8 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     if (file_put_contents($filePath, $imageData)) {
         require_once('connect.php');
 
-        $sql = "INSERT INTO siswa(nis, namasiswa, jk, alamat, tanggallahir, foto) 
-                VALUES ('$nis','$namasiswa','$jk','$alamat','$tanggallahir','$namafile')";
+        $sql = "INSERT INTO siswa(nis, namasiswa, jk, alamat, tanggallahir, foto) VALUES ('$nis','$namasiswa','$jk','$alamat','$tanggallahir','$namafile')";
 
         if (mysqli_query($conn, $sql)) {
             echo "berhasil menyimpan data";
