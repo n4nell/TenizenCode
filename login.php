@@ -16,7 +16,7 @@ if (mysqli_num_rows($result) > 0) {
             "message" => "login berhasil",
             "otp" => $user['otp'],
             "data" => [
-                "iduser" => $user['iduser'],
+                "iduser" => $user['id_user'],
                 "username" => $user['username'],
                 "email" => $user['email'],
             ]
