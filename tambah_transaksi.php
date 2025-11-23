@@ -1,41 +1,63 @@
 <?php
+error_reporting(0);
+header('Content-Type: application/json');
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-    if (!isset($_POST['idproduk'], $_POST['jumlahbeli'], $_POST['total'], $_POST['bayar'], $_POST['kembalian'])) {
-        echo 'Data tidak lengkap';
-        exit;
+    $required = ['id_produk', 'jumlah_beli', 'total', 'bayar', 'kembalian'];
+    foreach ($required as $field) {
+        if (!isset($_POST[$field])) {
+            echo json_encode(["status" => "error", "message" => "Data $field tidak lengkap"]);
+            exit;
+        }
     }
-    
-    $idproduk = $_POST['id_produk'];
-    $jumlahbeli = $_POST['jumlah_beli'];
-    $total = $_POST['total'];
-    $bayar = $_POST['bayar'];
-    $kembalian = $_POST['kembalian'];
-    $tanggaltransaksi = !empty($_POST['tanggaltransaksi']) ? $_POST['tanggaltransaksi'] : date("Y-m-d H:i:s");
+
+    $idproduk       = $_POST['id_produk'];
+    $jumlahbeli     = $_POST['jumlah_beli'];
+    $total          = $_POST['total'];
+    $bayar          = $_POST['bayar'];
+    $kembalian      = $_POST['kembalian'];
+    $tanggal        = !empty($_POST['tanggal_transaksi']) 
+                        ? $_POST['tanggal_transaksi'] 
+                        : date("Y-m-d H:i:s");
 
     require_once('connect.php');
 
-    $checkStmt = $conn->prepare("SELECT idproduk FROM produk WHERE idproduk = ?");
-    $checkStmt->bind_param("s", $idproduk);
-    $checkStmt->execute();
-    $result = $checkStmt->get_result();
+    $check = $conn->prepare("SELECT idproduk FROM produk WHERE idproduk = ?");
+    $check->bind_param("s", $idproduk);
+    $check->execute();
+    $result = $check->get_result();
+
     if ($result->num_rows == 0) {
-        echo "Produk dengan ID $idproduk tidak ditemukan.";
+        echo json_encode(["status" => "error", "message" => "ID produk tidak ditemukan"]);
         exit;
     }
-    $checkStmt->close();
+    $check->close();
 
-    $stmt = $conn->prepare("INSERT INTO transaksi ($idproduk, jumlahbeli, total, bayar, kembalian, tanggaltransaksi) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt = $conn->prepare("
+        INSERT INTO transaksi (id_produk, jumlah_beli, total, bayar, kembalian, tanggal_transaksi)
+        VALUES (?, ?, ?, ?, ?, ?)
+    ");
+
     if (!$stmt) {
-        echo "Gagal mempersiapkan statement: " . $conn->error;
+        echo json_encode(["status" => "error", "message" => $conn->error]);
         exit;
     }
 
-    $stmt->bind_param("ssssss", $idproduk, $jumlahbeli, $total, $bayar, $kembalian, $tanggaltransaksi);
+    $stmt->bind_param(
+        "siiiss",
+        $idproduk,
+        $jumlahbeli,
+        $total,
+        $bayar,
+        $kembalian,
+        $tanggal
+    );
+
     if ($stmt->execute()) {
-        echo 'Berhasil Menambahkan Transaksi';
+        echo json_encode(["status" => "success", "message" => "Transaksi berhasil ditambahkan"]);
     } else {
-        echo 'Gagal Menambahkan Transaksi: ' . $stmt->error;
+        echo json_encode(["status" => "error", "message" => $stmt->error]);
     }
 
     $stmt->close();

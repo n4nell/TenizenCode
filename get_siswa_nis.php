@@ -1,4 +1,6 @@
 <?php
+error_reporting(0);
+header('Content-Type: application/json');
 
 include 'connect.php';
 
@@ -11,21 +13,27 @@ if (isset($_GET['nis'])) {
     if (mysqli_num_rows($result) > 0) {
         $data = mysqli_fetch_assoc($result);
 
-        $fotoBase64 = $data['foto'];
+        $foto_path = "upload/" . $data["foto"];
+        if (file_exists($foto_path)) {
+            $fotoBase64 = base64_encode(file_get_contents($foto_path));
+        } else {
+            $fotoBase64 = null;
+        }
 
         $response = array(
             "nis" => $data['nis'],
-            "namasiswa" => $data['nama_siswa'],
+            "nama_siswa" => $data['nama_siswa'],
             "jk" => $data['jk'],
             "alamat" => $data['alamat'],
-            "tgllahir" => $data['tanggal_lahir'],
+            "tanggal_lahir" => $data['tanggal_lahir'],
             "foto" => $fotoBase64
         );
+
         echo json_encode($response);
     } else {
         echo json_encode(["error" => "Data tidak ditemukan"]);
     }
 } else {
     echo json_encode(["error" => "Parameter NIS tidak dikirim"]);
-} 
-?>  
+}
+?>

@@ -1,22 +1,31 @@
 <?php
-require_once("koneksi.php");
-$sql = "select * from siswa";
-$res = mysqli_query(mysql: $conn, query: $sql);
+header('Content-Type: application/json');
+
+require_once("connect.php");
+
+$sql = "SELECT * FROM siswa";
+$res = mysqli_query($conn, $sql);
+
 $result = array();
 
-while ($row = mysqli_fetch_assoc(result: $res)){
+while ($row = mysqli_fetch_assoc($res)) {
+
     $foto_path = "upload/" . $row["foto"];
-    $foto_base64 = file_exists(filename: $foto_path) ? base64_encode(string: file_get_contents(filename: $foto_path)) :
+    if (file_exists($foto_path)) {
+        $foto_base64 = base64_encode(@file_get_contents($foto_path));
+    } else {
+        $foto_base64 = ""; 
+    }
 
     $result[] = array(
-        "nis" => $row ["nis"],
-        "namasiswa" => $row ["nama_siswa"],
-        "jk" => $row ["jk"],
-        "alamat" => $row ["alamat"],
-        "tanggallahir" => $row ["tanggal_lahir"],
+        "nis" => $row["nis"],
+        "namasiswa" => $row["nama_siswa"],    
+        "jk" => $row["jk"],
+        "alamat" => $row["alamat"],
+        "tanggallahir" => $row["tanggal_lahir"],
         "foto" => $foto_base64
     );
 }
 
-header(header: 'Content-type:application/json');
-echo json_encode(value: array('result' => $result));    
+echo json_encode(array("result" => $result), JSON_UNESCAPED_UNICODE);
+?>

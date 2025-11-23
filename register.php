@@ -1,23 +1,25 @@
 <?php
+header('Content-Type: application/json');
 require_once 'connect.php';
-if ($server['REQUEST_METHOD']=="POST"){
+
+if ($_SERVER['REQUEST_METHOD'] == "POST") {
     $username = $_POST['username'];
     $email = $_POST['email'];
-    $password = md5(string: $_POST['password']);
+    $password = md5($_POST['password']);
 
-    $check = mysqli_query(mysql: $conn, query: "SELECT * FROM user WHERE email='$email'");
+    $check = mysqli_query($conn, "SELECT * FROM user WHERE email='$email'");
 
-    if (mysqli_num_rows(result: $check) > 0){
-        echo "email sudah terdaftar";
-    }else {
-        $sql = "INSERT INTO user(username, email, password) values('$username', '$email', '$password')";
-        if(mysqli_query(mysql: $conn, query: $sql)){
-            echo "user berhasil dibuat";
-        }else {
-            echo "user gagal dibuat";
+    if (mysqli_num_rows($check) > 0) {
+        echo json_encode(["status" => "error", "message" => "Email sudah terdaftar"]);
+    } else {
+        $sql = "INSERT INTO user(username,email,password) VALUES('$username','$email','$password')";
+        if(mysqli_query($conn, $sql)){
+            echo json_encode(["status" => "success", "message" => "User berhasil dibuat"]);
+        } else {
+            echo json_encode(["status" => "error", "message" => "User gagal dibuat"]);
         }
     }
-}else{
-    echo "Invalid request";
+} else {
+    echo json_encode(["status" => "error", "message" => "Invalid request"]);
 }
 ?>
